@@ -23,7 +23,7 @@ def parse(request, class_pattern=""):
 		print(f"\"{class_pattern}\" is a null selector.")
 	doc_soup = BeautifulSoup(request.content, "html.parser")
 	doc_spans = doc_soup.find_all("span", {"class": class_pattern})
-	return doc_spans[0].text 
+	return doc_spans[0].text
 
 if __name__ == "__main__":
 	btc = req_wrapper("https://www.coinbase.com/price/bitcoin")
