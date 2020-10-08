@@ -7,6 +7,7 @@ app = Flask(__name__)
 db_path = "./out.csv"
 datetime_string = "%Y-%m-%d %H:%M:%S"
 display_cell_width = 10
+display_height = 200
 refresh = 30
 
 def req_wrapper(url=None):
@@ -94,9 +95,9 @@ def hello_world():
 	cells = [row.split(',') for row in rows]
 	display_cells = len(cells)
 	for x in cells:
-		x[1] = fit_between(x[1], 10600, 11000, display_cells*display_cell_width, 0)
-		x[2] = fit_between(x[2], 0.01, 0.025, display_cells*display_cell_width, 0)
-	return render_template("index.html", current=current, data=cells, n=display_cells, w=display_cell_width, timeout=refresh/2)
+		x[1] = fit_between(x[1], 10600, 11000, display_height, 0)
+		x[2] = fit_between(x[2], 0.01, 0.025, display_height, 0)
+	return render_template("index.html", current=current, data=cells, n=display_cells, w=display_cell_width, h=display_height, timeout=refresh/2)
 
 if __name__ == "__main__":
 	app.run()
