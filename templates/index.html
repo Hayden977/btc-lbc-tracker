@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+    <head>
+		<title>{{ current[0] }}</title>
+		<meta http-equiv="refresh" content="{{ timeout }}">
+	</head>
+    <body>
+      <div>
+        <svg id = "svgbtc" width = "{{ n*w }}" height = "{{ n*w }}">
+          {% for item in data %}
+            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][1] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0][1] }}" style = "stroke:red;stroke-width:2"/>
+          {% endfor %}
+        </svg>
+        <p>${{ current[1] }}</p>
+      </div>
+      <div>
+        <svg id = "svglbc" width = "{{ n*w }}" height = "{{ n*w }}">
+          {% for item in data %}
+            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][2] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0][2] }}" style = "stroke:blue;stroke-width:2"/>
+          {% endfor %}
+        </svg>
+        <p>${{ current[2] }}</p>
+      </div>
+    </body>
+</html>
