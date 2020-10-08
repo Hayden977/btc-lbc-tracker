@@ -6,6 +6,8 @@ import requests, time, csv, threading
 app = Flask(__name__)
 db_path = "./out.csv"
 datetime_string = "%Y-%m-%d %H:%M:%S"
+display_cell_width = 10
+refresh = 30
 
 def req_wrapper(url=None):
 	"""
@@ -41,14 +43,14 @@ def read_csv_entries(n=10):
 	"""
 	Return the n latest entries in the database.
 	"""
-	with open("./out.csv", "r") as f:
+	with open(db_path, "r") as f:
 		return [line for line in f][-n:]
 
 def write_csv(data):
 	"""
 	Write a row of data into the database.
 	"""
-	with open("./out.csv", "a") as f:
+	with open(db_path, "a") as f:
 		writer = csv.writer(f, lineterminator='\n')
 		writer.writerow(data)
 
@@ -63,7 +65,7 @@ def do_scrape():
 	now = datetime.now().strftime(datetime_string)
 	return [now] + [cstns(x) for x in [btc, lbc]]
 
-def do_daemon(wait=60):
+def do_daemon(wait=refresh):
 	"""
 	Create an infinite loop for the scraping function to run on a side thread.
 	"""
@@ -73,7 +75,7 @@ def do_daemon(wait=60):
 		write_csv(scraped)
 		time.sleep(wait)
 
-def fit_between(value, price_min, price_max, graph_min=0, graph_max=200):
+def fit_between(value, price_min, price_max, graph_min, graph_max):
 	# https://stackoverflow.com/a/1969274
 	left_span = price_max - price_min
 	right_span = graph_max - graph_min
@@ -88,15 +90,13 @@ def startup():
 @app.route('/')
 def hello_world():
 	rows = read_csv_entries(40)
+	current = rows[-1].split(',')
 	cells = [row.split(',') for row in rows]
 	display_cells = len(cells)
-	display_cell_width = 10
-	current = (rows[display_cells - 1]).split(',')
-	transform = [x for x in cells]
-	for x in transform:
-		x[1] = fit_between(x[1], 10600, 11000, 0, display_cells*display_cell_width)
-		x[2] = fit_between(x[2], 0.01, 0.025, 0, display_cells*display_cell_width)
-	return render_template("index.html", current=current, data=transform, n=display_cells, w=display_cell_width, timeout=60)
+	for x in cells:
+		x[1] = fit_between(x[1], 10600, 11000, display_cells*display_cell_width, 0)
+		x[2] = fit_between(x[2], 0.01, 0.025, display_cells*display_cell_width, 0)
+	return render_template("index.html", current=current, data=cells, n=display_cells, w=display_cell_width, timeout=refresh/2)
 
 if __name__ == "__main__":
 	app.run()
