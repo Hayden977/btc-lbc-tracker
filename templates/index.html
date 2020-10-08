@@ -21,9 +21,9 @@
         <svg id = "svglbc" width = "{{ n*w }}" height = "{{ h }}">
           {% for item in data %}
             {% if data[loop.index0+1] == undefined %}
-            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][1] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0][1] }}" style = "stroke:blue;stroke-width:2"/>
+            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][2] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0][2] }}" style = "stroke:blue;stroke-width:2"/>
             {% else %}
-            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][1] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0+1][1] }}" style = "stroke:blue;stroke-width:2"/>
+            <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][2] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0+1][2] }}" style = "stroke:blue;stroke-width:2"/>
             {% endif %}
           {% endfor %}
         </svg>
