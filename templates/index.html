@@ -3,6 +3,7 @@
     <head>
 		<title>{{ current[0] }}</title>
 		<meta http-equiv="refresh" content="{{ timeout }}">
+    <style>* { background-color: #181a1b; color: #e8e6e3; }</style>
 	</head>
     <body>
       <div>
@@ -14,8 +15,14 @@
             <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][1] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0+1][1] }}" style = "stroke:red;stroke-width:2"/>
             {% endif %}
           {% endfor %}
+          <text x="0" y="12" style="fill:#e8e6e3">${{ prices[1] }}</text>
+          <line x1="0" y1="12" x2="{{ n*w }}" y2="12" style="stroke:#776e62"/>
+          <text x="0" y="{{(h/2)-12 }}" style="fill:#e8e6e3">${{ prices[0]+(prices[1]-prices[0])/2 }}</text>
+          <line x1="0" y1="{{(h/2)-12 }}" x2="{{ n*w }}" y2="{{(h/2)-12 }}" style="stroke:#776e62"/>
+          <text x="0" y="{{ h-12 }}" style="fill:#e8e6e3">${{ prices[0] }}</text>
+          <line x1="0" y1="{{h-12 }}" x2="{{ n*w }}" y2="{{h-12 }}" style="stroke:#776e62"/>
         </svg>
-        <p>${{ current[1] }}</p>
+        <h1>${{ current[1] }}</h1>
       </div>
       <div>
         <svg id = "svglbc" width = "{{ n*w }}" height = "{{ h }}">
@@ -26,8 +33,14 @@
             <line x1 = "{{ loop.index0*w }}" y1 = "{{ data[loop.index0][2] }}" x2 = "{{ loop.index0*w+w }}" y2 = "{{ data[loop.index0+1][2] }}" style = "stroke:blue;stroke-width:2"/>
             {% endif %}
           {% endfor %}
+          <text x="0" y="12" style="fill:#e8e6e3">${{ prices[3] }}</text>
+          <line x1="0" y1="12" x2="{{ n*w }}" y2="12" style="stroke:#776e62"/>
+          <text x="0" y="{{(h/2)-12 }}" style="fill:#e8e6e3">${{ prices[2]+(prices[3]-prices[2])/2 }}</text>
+          <line x1="0" y1="{{(h/2)-12 }}" x2="{{ n*w }}" y2="{{(h/2)-12 }}" style="stroke:#776e62"/>
+          <text x="0" y="{{ h-12 }}" style="fill:#e8e6e3">${{ prices[2] }}</text>
+          <line x1="0" y1="{{h-12 }}" x2="{{ n*w }}" y2="{{h-12 }}" style="stroke:#776e62"/>
         </svg>
-        <p>${{ current[2] }}</p>
+        <h1>${{ current[2] }}</h1>
       </div>
     </body>
 </html>
