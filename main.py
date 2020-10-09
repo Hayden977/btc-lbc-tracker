@@ -34,12 +34,6 @@ def parse(request, class_pattern=""):
 	doc_spans = doc_soup.find_all("span", {"class": class_pattern})
 	return doc_spans[0].text
 
-def cstns(s):
-	"""
-	Convert a currency string to a number string.
-	"""
-	return s.replace("$", "").replace(",", "")
-
 def read_csv_entries(n=10):
 	"""
 	Return the n latest entries in the database.
@@ -64,7 +58,7 @@ def do_scrape():
 	lbc_req = req_wrapper("https://coinmarketcap.com/currencies/library-credit/")
 	lbc = parse(lbc_req, "cmc-details-panel-price__price")
 	now = datetime.now().strftime(datetime_string)
-	return [now] + [cstns(x) for x in [btc, lbc]]
+	return [now] + [x.replace("$", "").replace(",", "") for x in [btc, lbc]]
 
 def do_daemon(wait=refresh):
 	"""
@@ -77,6 +71,9 @@ def do_daemon(wait=refresh):
 		time.sleep(wait)
 
 def fit_between(value, price_min, price_max, graph_min, graph_max):
+	"""
+	Fits a value in a range to a value in another range.
+	"""
 	# https://stackoverflow.com/a/1969274
 	left_span = price_max - price_min
 	right_span = graph_max - graph_min
