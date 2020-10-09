@@ -13,10 +13,7 @@ graph_cell_width = 10
 graph_height = 200
 graph_hz = 30
 # Pricing
-btc_max = 12000
-btc_min = 10800
-lbc_max = 0.025
-lbc_min = 0.01
+prices = [10800, 12000, 0.025, 0.01]
 
 def req_wrapper(url=None):
 	"""
@@ -116,9 +113,9 @@ def hello_world():
 	current = rows[-1].split(',')
 	cells = [row.split(',') for row in rows]
 	for x in cells:
-		x[1] = fit_between(x[1], btc_min, btc_max, graph_height, 0)
-		x[2] = fit_between(x[2], lbc_min, lbc_max, graph_height, 0)
-	return render_template("index.html", current=current, data=cells, n=len(cells), w=graph_cell_width, h=graph_height, timeout=graph_hz/2)
+		x[1] = fit_between(x[1], prices[0], prices[1], graph_height, 0)
+		x[2] = fit_between(x[2], prices[2], prices[3], graph_height, 0)
+	return render_template("index.html", current=current, data=cells, n=len(cells), w=graph_cell_width, h=graph_height, timeout=graph_hz/2, prices=prices)
 
 if __name__ == "__main__":
 	app.run()
