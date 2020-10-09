@@ -3,12 +3,20 @@ from flask import Flask, render_template
 from datetime import datetime
 import requests, time, csv, threading
 
+# Flask
 app = Flask(__name__)
-db_path = "./out.csv"
+# Strings
 datetime_string = "%Y-%m-%d %H:%M:%S"
-display_cell_width = 10
-display_height = 200
-refresh = 30
+db_path = "./out.csv"
+# Graph
+graph_cell_width = 10
+graph_height = 200
+graph_hz = 30
+# Pricing
+btc_max = 12000
+btc_min = 10800
+lbc_max = 0.025
+lbc_min = 0.01
 
 def req_wrapper(url=None):
 	"""
@@ -30,24 +38,33 @@ def parse(request, class_pattern=""):
 	"""
 	if class_pattern == "":
 		print(f"\"{class_pattern}\" is a null selector.")
-	doc_soup = BeautifulSoup(request.content, "html.parser")
-	doc_spans = doc_soup.find_all("span", {"class": class_pattern})
-	return doc_spans[0].text
+		return class_pattern
+	else:
+		doc_soup = BeautifulSoup(request.content, "html.parser")
+		doc_spans = doc_soup.find_all("span", {"class": class_pattern})
+		return doc_spans[0].text
 
 def read_csv_entries(n=10):
 	"""
 	Return the n latest entries in the database.
 	"""
-	with open(db_path, "r") as f:
-		return [line for line in f][-n:]
+	if n < 0 or n == None:
+		print(f"Row selector \"{n}\" is outside the valid range.")
+		return []
+	else:
+		with open(db_path, "r") as f:
+			return [line for line in f][-n:]
 
 def write_csv(data):
 	"""
 	Write a row of data into the database.
 	"""
-	with open(db_path, "a") as f:
-		writer = csv.writer(f, lineterminator='\n')
-		writer.writerow(data)
+	if data == None or data == []:
+		print(f"Null result \"{data}\" cannot be written to a file.")
+	else:
+		with open(db_path, "a") as f:
+			writer = csv.writer(f, lineterminator='\n')
+			writer.writerow(data)
 
 def do_scrape():
 	"""
@@ -60,17 +77,19 @@ def do_scrape():
 	now = datetime.now().strftime(datetime_string)
 	return [now] + [x.replace("$", "").replace(",", "") for x in [btc, lbc]]
 
-def do_daemon(wait=refresh):
+def do_daemon(wait=graph_hz):
 	"""
 	Create an infinite loop for the scraping function to run on a side thread.
 	"""
+	if wait <= 0:
+		print(f"Daemon requires a non-zero counter to loop.")
 	while True:
 		scraped = do_scrape()
 		print(f"\r{scraped}", end='')
 		write_csv(scraped)
 		time.sleep(wait)
 
-def fit_between(value, price_min, price_max, graph_min, graph_max):
+def fit_between(value=0, price_min=0, price_max=0, graph_min=0, graph_max=0):
 	"""
 	Fits a value in a range to a value in another range.
 	"""
@@ -82,19 +101,24 @@ def fit_between(value, price_min, price_max, graph_min, graph_max):
 
 @app.before_first_request
 def startup():
+	"""
+	Start data logger on app startup.
+	"""
 	logger_daemon = threading.Thread(target=do_daemon, daemon=True)
 	logger_daemon.start()
 
 @app.route('/')
 def hello_world():
+	"""
+	Prepare and render the data to a webpage.
+	"""
 	rows = read_csv_entries(40)
 	current = rows[-1].split(',')
 	cells = [row.split(',') for row in rows]
-	display_cells = len(cells)
 	for x in cells:
-		x[1] = fit_between(x[1], 10600, 11000, display_height, 0)
-		x[2] = fit_between(x[2], 0.01, 0.025, display_height, 0)
-	return render_template("index.html", current=current, data=cells, n=display_cells, w=display_cell_width, h=display_height, timeout=refresh/2)
+		x[1] = fit_between(x[1], btc_min, btc_max, graph_height, 0)
+		x[2] = fit_between(x[2], lbc_min, lbc_max, graph_height, 0)
+	return render_template("index.html", current=current, data=cells, n=len(cells), w=graph_cell_width, h=graph_height, timeout=graph_hz/2)
 
 if __name__ == "__main__":
 	app.run()
