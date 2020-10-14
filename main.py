@@ -6,6 +6,7 @@ import requests, time, csv, threading
 # Flask
 app = Flask(__name__)
 # Strings
+cfg_path = "./btclbc.cfg"
 datetime_string = "%Y-%m-%d %H:%M:%S"
 db_path = "./out.csv"
 # Graph
@@ -13,7 +14,16 @@ graph_cell_width = 10
 graph_height = 200
 graph_hz = 30
 # Pricing
+entry_counter = 40
 prices = [10800, 12000, 0.025, 0.01]
+
+def read_cfg():
+	lines = []
+	with open(cfg_path) as f:
+		lines = [line for line in f]
+	if lines is []:
+		print("Could not find a file by the name of \"{cfg_path}\"")
+	return lines
 
 def req_wrapper(url=None):
 	"""
@@ -41,7 +51,7 @@ def parse(request, class_pattern=""):
 		doc_spans = doc_soup.find_all("span", {"class": class_pattern})
 		return doc_spans[0].text
 
-def read_csv_entries(n=10):
+def read_csv_entries(n=entry_counter):
 	"""
 	Return the n latest entries in the database.
 	"""
@@ -109,7 +119,7 @@ def hello_world():
 	"""
 	Prepare and render the data to a webpage.
 	"""
-	rows = read_csv_entries(40)
+	rows = read_csv_entries()
 	current = rows[-1].split(',')
 	cells = [row.split(',') for row in rows]
 	for x in cells:
@@ -118,4 +128,13 @@ def hello_world():
 	return render_template("index.html", current=current, data=cells, n=len(cells), w=graph_cell_width, h=graph_height, timeout=graph_hz/2, prices=prices)
 
 if __name__ == "__main__":
+	cfg = read_cfg()
+	graph_cell_width = float(cfg[2-1])
+	graph_height = float(cfg[4-1])
+	graph_hz = float(cfg[6-1])
+	entry_counter = float(cfg[8-1])
+	prices[0] = float(cfg[10-1])
+	prices[1] = float(cfg[12-1])
+	prices[2] = float(cfg[14-1])
+	prices[3] = float(cfg[16-1])
 	app.run()
